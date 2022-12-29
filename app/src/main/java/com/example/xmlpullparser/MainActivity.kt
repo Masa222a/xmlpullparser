@@ -38,14 +38,20 @@ class MainActivity : AppCompatActivity() {
 
         // person_list.xml を解析するパーサーを取得する
         val parser = applicationContext.resources.getXml(R.xml.userdetails)
+        var name:String? = null
+        var designation:String? = null
 
         // 解析が完了し、ドキュメントの終端に到達するまで処理を続ける
         while (parser.eventType != END_DOCUMENT) {
 
             // 開始タグでかつ、名称がPersonならば各アトリビュートを取得する
-            if (parser.eventType == START_TAG && parser.name == "user") {
-                val name = parser.getAttributeValue(null, "name")
-                val designation = parser.getAttributeValue(null, "designation")
+            if (parser.eventType == START_TAG) {
+                if(parser.name == "name") {
+                    name = parser.getAttributeValue(null, "name")
+                } else if(parser.name == "designation") {
+                    designation = parser.getAttributeValue(null, "designation")
+                }
+
                 users.add(User(name, designation))
                 Log.d("ユーザー", "$users")
             }
@@ -63,7 +69,7 @@ class MainActivity : AppCompatActivity() {
 //        <name>Danny</name>
 //        <designation>Music Director</designation>
 //    </user>
-    data class User(val name: String, val designation: String)
+    data class User(val name: String?, val designation: String?)
 
     class RecyclerAdapter(val list: MutableList<User>) : RecyclerView.Adapter<RecyclerAdapter.ViewHolderList>() {
         class ViewHolderList (item: View) : RecyclerView.ViewHolder(item) {
