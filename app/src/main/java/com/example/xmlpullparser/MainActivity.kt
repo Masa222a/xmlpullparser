@@ -10,8 +10,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.aaaaaaaaaaaaaaaaaaaa.R
-import org.xmlpull.v1.XmlPullParser.END_DOCUMENT
-import org.xmlpull.v1.XmlPullParser.START_TAG
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParser.*
 import org.xmlpull.v1.XmlPullParserException
 
 class MainActivity : AppCompatActivity() {
@@ -38,28 +38,46 @@ class MainActivity : AppCompatActivity() {
 
         // person_list.xml を解析するパーサーを取得する
         val parser = applicationContext.resources.getXml(R.xml.userdetails)
-        var name:String? = null
-        var designation:String? = null
+        var name = mutableListOf<String>()
+        var designation = mutableListOf<String>()
+        var tagName:String? = null
+        var eventType = parser.eventType
 
         // 解析が完了し、ドキュメントの終端に到達するまで処理を続ける
         while (parser.eventType != END_DOCUMENT) {
 
-            // 開始タグでかつ、名称がPersonならば各アトリビュートを取得する
-            if (parser.eventType == START_TAG) {
-                if(parser.name == "name") {
-                    name = parser.getAttributeValue(null, "name")
-                } else if(parser.name == "designation") {
-                    designation = parser.getAttributeValue(null, "designation")
-                }
+            // 開始タグでかつ、名称がuserならば各アトリビュートを取得する
+            when(eventType) {
+                START_DOCUMENT -> {
 
-                users.add(User(name, designation))
-                Log.d("ユーザー", "$users")
+                }
+                START_TAG -> {
+                    tagName = parser.name
+
+                }
+                TEXT -> {
+                    if (tagName != null) {
+                        when(tagName) {
+                            "name" -> {
+                                if (tagName != null) {
+                                    name.add(parser.text)
+                                }
+                            }
+                            "designation" -> {
+                                if (tagName != null) {
+                                    designation.add(parser.text)
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             // 次の要素を読み込む
-            parser.next()
+            eventType = parser.next()
         }
-
+        Log.d("デバッグname", "${name}")
+        Log.d("デバッグdesignation", "${designation}")
         // パーサーはクローズ処理が必要なので忘れずに実行する
         parser.close()
         Log.d("デバッグ", "$users")
